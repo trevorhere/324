@@ -1,0 +1,79 @@
+
+1.
+  ps -Lo user,pid,ppid,nlwp,lwp,vsz,rss,state,ucmd -C echoserveri | grep ^talane\\\|USER
+  USER       PID  PPID NLWP   LWP    VSZ   RSS S CMD
+  talane   22180 22033    1 22180  10916  2024 S echoserveri
+
+2.
+  From the output, it looks like 1 process and 1 thread is running. They are running becasue I started the program ./echoserveri which 
+  which has 1 process running on 1 thread. 
+
+3. 
+   vsz: 10916, rss: 2024. total = (10916 + 2024) 
+4. 
+  it looks like the nc processes in the other window continue to run
+
+5. 
+  ps -Lo user,pid,ppid,nlwp,lwp,vsz,rss,state,ucmd -C echoserverp | grep ^talane\\\|USER
+  USER       PID  PPID NLWP   LWP    VSZ   RSS S CMD
+  talane   22819 22033    1 22819   6712   848 S echoserverp
+  talane   22821 22819    1 22821   6712   112 S echoserverp
+  talane   22824 22819    1 22824   6712   112 S echoserverp
+  talane   22846 22819    1 22846   6712   112 S echoserverp
+
+6. 
+  From the output, it looks like 4 processes and 4 threads are running. They are running becasue I started the program ./echoserverp which handles the given
+  concurrent processes. 
+7. 
+  vsz: 6712, rss: 848, total = (6712 + 848)
+8.
+  ps -Lo user,pid,ppid,nlwp,lwp,vsz,rss,state,ucmd -C echoservert | grep ^talane\\\|USER
+  USER       PID  PPID NLWP   LWP    VSZ   RSS S CMD
+  talane   23152 22033    4 23152 227908   916 S echoservert
+  talane   23152 22033    4 23156 227908   916 S echoservert
+  talane   23152 22033    4 23161 227908   916 S echoservert
+  talane   23152 22033    4 23163 227908   916 S echoservert
+9.
+  From the output, it looks like 1 process and 4 threads are running. They are running becasue I started the program ./echoservert 
+  which handles the given processes and threads. 
+10.
+  vsz: 227908, rss: 916, total = (227908 + 916)
+ 
+11.
+  ps -Lo user,pid,ppid,nlwp,lwp,vsz,rss,state,ucmd -C echoservert_pre | grep ^talane\\\|USER
+  USER       PID  PPID NLWP   LWP    VSZ   RSS S CMD
+  talane   23277 22033   11 23277  88672   840 S echoservert_pre
+  talane   23277 22033   11 23278  88672   840 S echoservert_pre
+  talane   23277 22033   11 23279  88672   840 S echoservert_pre
+  talane   23277 22033   11 23280  88672   840 S echoservert_pre
+  talane   23277 22033   11 23281  88672   840 S echoservert_pre
+  talane   23277 22033   11 23282  88672   840 S echoservert_pre
+  talane   23277 22033   11 23283  88672   840 S echoservert_pre
+  talane   23277 22033   11 23284  88672   840 S echoservert_pre
+  talane   23277 22033   11 23285  88672   840 S echoservert_pre
+  talane   23277 22033   11 23286  88672   840 S echoservert_pre
+  talane   23277 22033   11 23287  88672   840 S echoservert_pre
+12.
+  vsz:  88672, rss: 840, total = (88672 + 840)
+13.
+  From the output, it looks like 1 process and 11 threads are running. They are running becasue I started the program ./echoservert_pre
+  which, executed, creates the given processes and threads. 
+
+14.
+  pro: Easy to avoid unintended sharing of resources
+  con: Hard to share resources
+15.
+  pro: Easy to share resources
+  con: Event orderings not repeatable, hard to debug 
+16.
+  pro: Producer and Consumer make it easy for threads to interact
+  con: More expensive in terms of resources than other methods
+  
+17. 
+  	sbuf_insert(&sbuf, connfd); /* Insert connfd in buffer */ , 1 producer thread
+18. 
+    int connfd = sbuf_remove(&sbuf); /* Remove connfd from buffer */ //line:conc:pre:removeconnfd, 1 consumer thread
+19.
+  The program will wait for an available slot.
+20.  
+  echo_cnt(connfd);    

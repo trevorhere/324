@@ -1,0 +1,150 @@
+1. exec.c prints the pid of the current process, sleeps for 30 seconds, exits if no argument is passed in or executes the command that is passed in as argv[1]. 
+2. the final print statement would only be executed if there was an error when execve runs
+3.   
+
+./exec /bin/cat                                              │
+Program "./exec" has pid 30999. Sleeping.                                                                              │
+Running exec of "/bin/cat"  
+
+4.
+
+$ ./exec /bin/cat                                                   
+Program "./exec" has pid 1992. Sleeping.                                                                               │talane@kentucky:~/Development/CS324/homework/3/hw3$ ps -1501 -o command,state
+Running exec of "/bin/cat"    
+
+
+$ ps -p 1992 -o user,pid,ppid,state,command
+USER       PID  PPID S COMMAND
+talane    1992  1260 S ./exec /bin/cat
+$ ps -p 1992 -o user,pid,ppid,state,command
+USER       PID  PPID S COMMAND
+talane    1992  1260 S /bin/cat
+
+5. Everything between the output commands is the same expect the COMMAND. This reason for this is that
+the output is derived from different processes that are being executed by exec.c
+
+6.
+
+$ ./exec doesnt_exist
+Program "./exec" has pid 10364. Sleeping.
+Running exec of "doesnt_exist"
+End of program "./exec".
+
+
+Passed in a program that doesn't exists. execve returns an error because the program doesn't exists. exec.c prints the end of program message. 
+
+7.
+
+fork.c runs, main is exectued, the current process is forked. A series of functions run depending on whether they are called in the child or parent process.
+
+8.
+The parent runs:
+A,C
+
+The child runs: 
+A,B
+
+each process is exited before section D is run. 
+
+9.
+
+$ ./fork                                                       
+Starting program; process has pid 4867                                                                                 │talane    4868  4867 Z  \_ [fork] <defunct>
+Section A;  pid 4867                                                                                                   │talane@cristoredentor:~/Development/CS324/homework/3/hw3$ 
+Section A;  pid 4868                                                                                                   │
+Section C; pid 4867                                                                                                    │
+Section B; pid 4868                                                                                                    │
+Section B done sleeping                                                                                                
+
+$ ps -p 4867 -p 4868  -o user,pid,ppid,state,command --forest
+USER       PID  PPID S COMMAND
+talane    4867  4652 S ./fork
+talane    4868  4867 S  \_ ./fork
+
+$ ps -p 4867 -p 4868  -o user,pid,ppid,state,command --forest
+USER       PID  PPID S COMMAND
+talane    4867  4652 S ./fork
+talane    4868  4867 Z  \_ [fork] <defunct>
+
+10. The differenence between the two commands is that in the second command, the child processs has exited and become a zombie as indicated by its status; Z. The command also reflects this with the printed 'defunct' following the command column.
+
+11. wait(&child_status)
+
+placed on the line after line 33, '/*BEGIN SECTION C*/'
+
+12.
+
+$ ./fork                                                           
+Starting program; process has pid 6846                                                                                 
+Section A;  pid 6846                                                                                                   
+Section A;  pid 6847                                                                                                  
+Section B; pid 6847                                                                                                   
+Section C; pid 6846                                                                                                    
+Section C done sleeping      
+
+$ ps -p 6846 -p 6847  -o user,pid,ppid,state,command --forest
+│USER       PID  PPID S COMMAND
+│talane    6846  6659 S ./fork
+│talane    6847  6846 S  \_ ./fork
+$ ps -p 6846 -p 6847  -o user,pid,ppid,state,command --forest
+│USER       PID  PPID S COMMAND
+│talane    6847     1 S ./fork
+
+13. In the first command, the parent and child process are displayed. In the second command, the parent has ended, but the child process is still running. 
+The child process has a different PPID in the second command, probably because its parent has been terminated. 
+
+14.
+$ cat fork-output.txt                                             
+BEFORE FORK                                                       
+SECTION A                                                         
+SECTION C                                                                                                            
+SECTION A                                                                                                            
+SECTION B               
+
+15. It looks like the parent process runs in section A and C, then the child process runs in section A and B. The parent process completes as the child process is getting started.
+
+16. 
+
+Starting program; process has pid 50376
+Section A;  pid 50376
+Section A;  pid 50377
+Section B; pid 50377
+Section B done sleeping
+hello from Section B
+Section C; pid 50376
+Section C done sleeping
+
+17. 
+
+Starting program; process has pid 51152
+Section A;  pid 51152
+Section A;  pid 51153
+Section B; pid 51153
+Section B done sleeping
+Program "./fork" has pid 51153. Sleeping.
+Running exec of "/bin/cat"
+foobar
+?Section C; pid 51152
+Section C done sleeping
+
+18.
+
+output: 
+Starting program; process has pid 51653
+Section A;  pid 51653
+Section A;  pid 51654
+Section B; pid 51654
+Section B done sleeping
+Program "./fork" has pid 51654. Sleeping.
+Running exec of "/bin/cat"
+?Section C; pid 51653
+Section C done sleeping
+
+fork-output.txt:
+BEFORE FORK
+SECTION A
+SECTION C
+SECTION A
+SECTION B
+foobar
+
